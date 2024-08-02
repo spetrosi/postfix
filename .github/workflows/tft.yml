@@ -8,14 +8,14 @@ permissions:
   contents: read
   # This is required for the ability to create/update the Pull request status
   statuses: write
-# The concurrency key is used to prevent multiple workflows from running at the same time
-concurrency:
-  # group name contains reponame-pr_num to allow simualteneous runs in different PRs
-  group: testing-farm-${{ github.event.repository.name }}-${{ github.event.issue.number }}
-  cancel-in-progress: true
 jobs:
   prepare_vars:
     name: Get info from role and PR to determine if and how to test
+    # The concurrency key is used to prevent multiple workflows from running at the same time
+    concurrency:
+      # group name contains reponame-pr_num to allow simualteneous runs in different PRs
+      group: testing-farm-${{ github.event.repository.name }}-${{ github.event.issue.number }}
+      cancel-in-progress: true
     # Let's schedule tests only on user request. NOT automatically.
     # Only repository owner or member can schedule tests
     if: |
