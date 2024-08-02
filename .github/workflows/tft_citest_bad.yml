@@ -22,5 +22,9 @@ jobs:
           PR_TITLE: ${{ github.event.issue.title }}
         run: |
           RUN_ID=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
-            | jq -r '[.workflow_runs[] | select( .conclusion == "failure" ) | select ( .display_title="$PR_TITLE" ) | .id][0]')
+            | jq -r '[.workflow_runs[] | select( .conclusion == "pending" ) | select ( .display_title="$PR_TITLE" ) | .id][0]')
+          if [ -z $RUN_ID ]; then # if pending run don't exist, take the last run with failure state
+            RUN_ID=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
+              | jq -r '[.workflow_runs[] | select( .conclusion == "failure" ) | select ( .display_title="$PR_TITLE" ) | .id][0]')
+          fi
           gh api --method POST repos/$REPO/actions/runs/$RUN_ID/rerun-failed-jobs
