@@ -20,7 +20,7 @@ jobs:
     # Only repository owner or member can schedule tests
     if: |
       github.event.issue.pull_request
-      && (contains(github.event.comment.body, '[citest]') || contains(github.event.comment.body, '[citest-all]'))
+      && contains(github.event.comment.body, '[citest]')
       && (contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.comment.author_association)
       || contains('systemroller', github.event.comment.user.login))
     runs-on: ubuntu-latest
@@ -29,6 +29,12 @@ jobs:
       head_sha: ${{ steps.head_sha.outputs.head_sha }}
       memory: ${{ steps.memory.outputs.memory }}
     steps:
+      - name: Dump github context
+        run:   echo "$GITHUB_CONTEXT"
+        shell: bash
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -143,7 +149,7 @@ jobs:
           targetUrl: ""
 
       - name: Run test in testing farm
-        uses: sclorg/testing-farm-as-github-action@v2
+        uses: sclorg/testing-farm-as-github-action@v3
         if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
         with:
           git_url: linux-system-roles/tft-tests
