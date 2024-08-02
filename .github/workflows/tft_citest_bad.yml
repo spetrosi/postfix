@@ -1,5 +1,5 @@
 ---
-name: Rerun failed testing farm tests
+name: Re-run failed testing farm tests
 on:
   issue_comment:
     types:
@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
 jobs:
-  retest:
+  citest_bad_rerun:
     if: |
       github.event.issue.pull_request
       && github.event.comment.body == '[citest_bad]'
@@ -21,10 +21,13 @@ jobs:
           REPO: ${{ github.repository }}
           PR_TITLE: ${{ github.event.issue.title }}
         run: |
-          RUN_ID=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
-            | jq -r '[.workflow_runs[] | select( .conclusion == "pending" ) | select ( .display_title="$PR_TITLE" ) | .id][0]')
-          if [ -z $RUN_ID ]; then # if pending run don't exist, take the last run with failure state
+          PENDING_RUN=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
+            | jq -r '[.workflow_runs[] | select(.display_title="$PR_TITLE") | select(.status == "pending" or .status == "queued" or .status == "in_progress") | .id][0]')
+          if [ "$RUN_ID" = "null" ]; then # if pending run don't exist, take the last run with failure state
             RUN_ID=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
               | jq -r '[.workflow_runs[] | select( .conclusion == "failure" ) | select ( .display_title="$PR_TITLE" ) | .id][0]')
+            echo "Re-running workflow $RUN_ID"
+            gh api --method POST repos/$REPO/actions/runs/$RUN_ID/rerun-failed-jobs
+          else
+            echo "The workflow $PENDING_RUN is still running, wait for it to finish to re-run"
           fi
-          gh api --method POST repos/$REPO/actions/runs/$RUN_ID/rerun-failed-jobs
