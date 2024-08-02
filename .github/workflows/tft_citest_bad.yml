@@ -26,7 +26,7 @@ jobs:
         run: |
           PENDING_RUN=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
             | jq -r '[.workflow_runs[] | select(.display_title="$PR_TITLE") | select(.status == "pending" or .status == "queued" or .status == "in_progress") | .id][0]')
-          if [ "$RUN_ID" = "null" ]; then # if pending run don't exist, take the last run with failure state
+          if [ "$PENDING_RUN" = "null" ]; then # if pending run don't exist, take the last run with failure state
             RUN_ID=$(gh api "repos/$REPO/actions/workflows/tft.yml/runs?event=issue_comment" \
               | jq -r '[.workflow_runs[] | select( .conclusion == "failure" ) | select ( .display_title="$PR_TITLE" ) | .id][0]')
             echo "Re-running workflow $RUN_ID"
