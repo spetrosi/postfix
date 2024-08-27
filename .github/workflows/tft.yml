@@ -50,7 +50,8 @@ jobs:
 
       - name: Checkout PR
         uses: actions/checkout@v4
-        ref: ${{ steps.head_sha.outputs.head_sha }}
+        with:
+          ref: ${{ steps.head_sha.outputs.head_sha }}
 
       - name: Get memory
         id: memory
@@ -180,6 +181,7 @@ jobs:
           api_key: ${{ secrets.TF_API_KEY_RH }}
           update_pull_request_status: false
           tmt_hardware: '{ "memory": ">= ${{ needs.prepare_vars.outputs.memory }} MB" }'
+          tmt_plan_filter: "tag:general,postfix"
 
       - name: Set final commit status
         uses: myrotvorets/set-commit-status-action@master
