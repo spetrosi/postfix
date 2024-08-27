@@ -157,8 +157,8 @@ jobs:
         uses: sclorg/testing-farm-as-github-action@v3
         if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
         with:
-          git_url: https://github.com/linux-system-roles/tft-tests
-          git_ref: main
+          git_url: https://github.com/spetrosi/tft-tests
+          git_ref: plan_filter_test
           pipeline_settings: '{ "type": "tmt-multihost" }'
           environment_settings: '{ "provisioning": { "tags": { "BusinessUnit": "system_roles" } } }'
           variables: "ANSIBLE_VER=${{ matrix.ansible_version }};\
@@ -181,6 +181,7 @@ jobs:
           api_key: ${{ secrets.TF_API_KEY_RH }}
           update_pull_request_status: false
           tmt_hardware: '{ "memory": ">= ${{ needs.prepare_vars.outputs.memory }} MB" }'
+          tmt_plan_filter: "tag:general,postfix"
 
       - name: Set final commit status
         uses: myrotvorets/set-commit-status-action@master
