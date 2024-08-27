@@ -118,7 +118,7 @@ jobs:
       ARTIFACTS_DIR_NAME: "tf_${{ github.event.repository.name }}-${{ github.event.issue.number }}_\
         ${{ matrix.platform }}-${{ matrix.ansible_version }}_\
         ${{ needs.prepare_vars.outputs.datetime }}/artifacts"
-      ARTIFACT_TARGET_DIR: /srv/pub/alt/linuxsystemroles/logs
+      ARTIFACT_TARGET_DIR: /srv/pub/alt/${{ vars.LINUXSYSTEMROLES_USER }}/logs
     steps:
       - name: Set variables with DATETIME and artifact location
         id: set_vars
@@ -126,9 +126,9 @@ jobs:
           printf -v DATETIME '%(%Y%m%d-%H%M%S)T' -1
           ARTIFACTS_DIR_NAME="tf_${{ github.event.repository.name }}-${{ github.event.issue.number }}_\
           ${{ matrix.platform }}-${{ matrix.ansible_version }}_$DATETIME/artifacts"
-          ARTIFACTS_TARGET_DIR=/srv/pub/alt/linuxsystemroles/logs
+          ARTIFACTS_TARGET_DIR=/srv/pub/alt/${{ vars.LINUXSYSTEMROLES_USER }}/logs
           ARTIFACTS_DIR=$ARTIFACTS_TARGET_DIR/$ARTIFACTS_DIR_NAME
-          ARTIFACTS_URL=https://dl.fedoraproject.org/pub/alt/linuxsystemroles/logs/$ARTIFACTS_DIR_NAME
+          ARTIFACTS_URL=https://dl.fedoraproject.org/pub/alt/${{ vars.LINUXSYSTEMROLES_USER }}/logs/$ARTIFACTS_DIR_NAME
           echo "DATETIME=$DATETIME" >> $GITHUB_OUTPUT
           echo "ARTIFACTS_DIR=$ARTIFACTS_DIR" >> $GITHUB_OUTPUT
           echo "ARTIFACTS_URL=$ARTIFACTS_URL" >> $GITHUB_OUTPUT
@@ -166,9 +166,9 @@ jobs:
             GITHUB_ORG=${{ github.repository_owner }};\
             PR_NUM=${{ github.event.issue.number }};\
             ARTIFACTS_DIR=${{ steps.set_vars.outputs.ARTIFACTS_DIR }};\
-            ARTIFACTS_URL=${{ steps.set_vars.outputs.ARTIFACTS_URL }};\
             TEST_LOCAL_CHANGES=false;\
-            LINUXSYSTEMROLES_USER=${{ vars.LINUXSYSTEMROLES_USER }}"
+            LINUXSYSTEMROLES_USER=${{ vars.LINUXSYSTEMROLES_USER }};\
+            ARTIFACTS_URL=${{ steps.set_vars.outputs.ARTIFACTS_URL }}"
           # Note that LINUXSYSTEMROLES_SSH_KEY must be single-line, TF doesn't read multi-line variables fine.
           secrets: "LINUXSYSTEMROLES_DOMAIN=${{ secrets.LINUXSYSTEMROLES_DOMAIN }};\
             LINUXSYSTEMROLES_SSH_KEY=${{ secrets.LINUXSYSTEMROLES_SSH_KEY }}"
